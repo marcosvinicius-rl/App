@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import Trabalho from './pages/Trabalho';
 import Treinos from './pages/Treinos';
 import Perfil from './pages/Perfil';
+import Alimentacao from './pages/Alimentacao';
 import Login from './pages/Login';
 import { AlertCircle } from 'lucide-react';
 import { supabase } from './lib/supabase';
@@ -42,18 +43,16 @@ function AppLayout() {
     );
   }
 
-  // Redirect to login if not authenticated and not on login page
   if (!session && !isLoginPage) {
     return <Navigate to="/login" replace />;
   }
 
-  // Redirect to home if authenticated and on login page
   if (session && isLoginPage) {
     return <Navigate to="/" replace />;
   }
 
-  const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && 
-                              import.meta.env.VITE_SUPABASE_URL !== "" && 
+  const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL &&
+                              import.meta.env.VITE_SUPABASE_URL !== "" &&
                               !import.meta.env.VITE_SUPABASE_URL.includes("your-project");
 
   return (
@@ -78,6 +77,7 @@ function AppLayout() {
           <Route path="/login" element={<Login />} />
           <Route path="/trabalho" element={<Trabalho />} />
           <Route path="/treinos" element={<Treinos />} />
+          <Route path="/alimentacao" element={<Alimentacao />} />
           <Route path="/perfil" element={<Perfil />} />
         </Routes>
       </div>
