@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-kinetic-orange: #ff6a00;
+  --color-zinc-950: #09090b;
+  --color-zinc-900: #18181b;
+  --color-zinc-800: #27272a;
+}
+
+@layer base {
+  body {
+    @apply bg-black text-white selection:bg-kinetic-orange selection:text-black antialiased font-sans;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-black;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-800 rounded-full hover:bg-kinetic-orange transition-colors;
+}
+
+/* Glass effect for cards */
+.kinetic-card {
+  @apply bg-zinc-950/80 border border-zinc-900 rounded-[32px] transition-all;
+}
+
+.kinetic-input {
+  @apply bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:border-kinetic-orange focus:outline-none transition-all font-bold placeholder:text-zinc-600;
+}
+
+.kinetic-btn-primary {
+  @apply bg-kinetic-orange text-black font-black uppercase tracking-widest py-4 px-8 rounded-2xl hover:brightness-110 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,106,0,0.2)];
+}
+
+.kinetic-btn-outline {
+  @apply bg-transparent border border-zinc-800 text-white font-black uppercase tracking-widest py-4 px-8 rounded-2xl hover:bg-zinc-900 transition-all;
+}
