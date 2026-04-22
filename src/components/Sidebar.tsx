@@ -1,16 +1,56 @@
-import { LayoutDashboard, Briefcase, Dumbbell, User, LogOut } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
-import { motion } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { useEffect, useState } from 'react';
+import { LogOut } from 'lucide-react';
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { id: 'trabalho', label: 'Trabalho', icon: Briefcase, path: '/trabalho' },
-  { id: 'treinos', label: 'Treinos', icon: Dumbbell, path: '/treinos' },
-  { id: 'perfil', label: 'Perfil', icon: User, path: '/perfil' },
-];
+  { id: 'dashboard', label: 'Dashboard', path: '/', shape: 'diamond-filled' },
+  { id: 'trabalho', label: 'Trabalho', path: '/trabalho', shape: 'circle' },
+  { id: 'treinos', label: 'Treinos', path: '/treinos', shape: 'diamond' },
+  { id: 'alimentacao', label: 'Alimentação', path: '/alimentacao', shape: 'ring' },
+  { id: 'perfil', label: 'Perfil', path: '/perfil', shape: 'triangle' },
+] as const;
+
+function NavShape({ type, active }: { type: string; active: boolean }) {
+  const color = active ? '#ff6a00' : '#52525b';
+  const size = 14;
+  switch (type) {
+    case 'diamond-filled':
+      return (
+        <svg width={size} height={size} viewBox="0 0 14 14">
+          <rect x="7" y="0" width="9.9" height="9.9" transform="rotate(45 7 7)" fill={color} />
+        </svg>
+      );
+    case 'diamond':
+      return (
+        <svg width={size} height={size} viewBox="0 0 14 14">
+          <rect x="7" y="0.5" width="9.2" height="9.2" transform="rotate(45 7 7)" fill="none" stroke={color} strokeWidth="1.5" />
+        </svg>
+      );
+    case 'circle':
+      return (
+        <svg width={size} height={size} viewBox="0 0 14 14">
+          <circle cx="7" cy="7" r="5.5" fill={color} />
+          <circle cx="7" cy="7" r="2" fill="#000" />
+        </svg>
+      );
+    case 'ring':
+      return (
+        <svg width={size} height={size} viewBox="0 0 14 14">
+          <circle cx="7" cy="7" r="5.5" fill="none" stroke={color} strokeWidth="1.5" />
+        </svg>
+      );
+    case 'triangle':
+      return (
+        <svg width={size} height={size} viewBox="0 0 14 14">
+          <polygon points="7,12 1.5,3 12.5,3" fill="none" stroke={color} strokeWidth="1.5" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -27,74 +67,53 @@ export default function Sidebar() {
     navigate('/login');
   };
 
-  const getInitials = (email: string | null) => {
-    if (!email) return 'U';
-    return email[0].toUpperCase();
-  };
-
   return (
-    <aside className="w-[300px] h-screen border-r border-zinc-900 flex flex-col bg-black sticky top-0 overflow-y-auto">
-      {/* Brand Header */}
-      <div className="p-10">
-        <div className="flex flex-col items-center">
-          <div className="w-16 h-8 bg-black border-2 border-zinc-900 rounded-full flex items-center p-1.5 cursor-pointer hover:border-zinc-700 transition-colors">
-            <div className="w-4 h-4 bg-white rounded-full ml-auto" />
-          </div>
-          <div className="mt-4 text-center">
-            <h1 className="font-black text-2xl italic tracking-[-0.1em] text-white">REAL MODE</h1>
-            <p className="text-[10px] font-bold text-zinc-600 tracking-[0.4em] uppercase mt-1">Performance Tech</p>
-          </div>
+    <aside className="w-[240px] h-screen flex flex-col bg-black sticky top-0 shrink-0">
+      {/* Brand */}
+      <div className="pt-10 pb-14 flex flex-col items-center">
+        {/* Toggle "logo" */}
+        <div className="w-16 h-8 border-2 border-zinc-700 rounded-full flex items-center p-1">
+          <div className="ml-auto w-5 h-5 bg-white rounded-full" />
         </div>
+        <h1 className="mt-3 text-[22px] font-black tracking-[-0.02em] text-white">REAL MODE</h1>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-6 space-y-2 py-10">
+      {/* Nav */}
+      <nav className="px-6 space-y-1">
         {navItems.map((item) => (
           <NavLink
             key={item.id}
             to={item.path}
+            end={item.path === '/'}
             className={({ isActive }) =>
               cn(
-                "flex items-center gap-5 px-8 py-5 rounded-none transition-all group relative",
-                isActive 
-                  ? "text-kinetic-orange" 
-                  : "text-zinc-600 hover:text-zinc-400"
+                'flex items-center gap-4 px-4 py-3 rounded-xl transition-all relative',
+                isActive
+                  ? 'bg-gradient-to-r from-kinetic-orange/20 to-transparent text-kinetic-orange'
+                  : 'text-zinc-500 hover:text-zinc-300'
               )
             }
           >
             {({ isActive }) => (
               <>
-                {isActive && (
-                  <motion.div
-                    layoutId="sidebar-indicator"
-                    className="absolute left-0 top-0 bottom-0 w-1 bg-kinetic-orange shadow-[0_0_15px_rgba(255,106,0,0.4)]"
-                  />
-                )}
-                <item.icon className={cn("w-6 h-6", isActive ? "text-kinetic-orange" : "text-zinc-700")} />
-                <span className="font-black text-xs tracking-[0.3em] uppercase">{item.label}</span>
+                <NavShape type={item.shape} active={isActive} />
+                <span className="text-[15px] font-medium">{item.label}</span>
               </>
             )}
           </NavLink>
         ))}
       </nav>
 
-      {/* User Footer */}
-      <div className="p-8">
-        <div 
+      {/* Footer logout */}
+      <div className="mt-auto p-6">
+        <button
           onClick={handleSignOut}
-          className="bg-zinc-950 p-6 rounded-3xl border border-zinc-900 flex items-center gap-4 group cursor-pointer hover:border-red-900/50 transition-all"
+          className="w-full flex items-center gap-3 px-4 py-3 text-zinc-600 hover:text-red-400 transition-colors text-xs font-medium"
+          title={userEmail || 'Sair'}
         >
-          <div className="w-12 h-12 rounded-full bg-kinetic-orange flex items-center justify-center text-black font-black shrink-0">
-            {getInitials(userEmail)}
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <h3 className="text-sm font-black text-white truncate">{userEmail?.split('@')[0] || 'Usuário'}</h3>
-            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest flex items-center gap-2">
-               Atleta Pro
-               <LogOut className="w-3 h-3 text-zinc-800 group-hover:text-red-500 transition-colors" />
-            </p>
-          </div>
-        </div>
+          <LogOut className="w-4 h-4" />
+          <span className="truncate">{userEmail?.split('@')[0] || 'Sair'}</span>
+        </button>
       </div>
     </aside>
   );
