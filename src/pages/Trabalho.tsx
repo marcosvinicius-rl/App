@@ -1,36 +1,46 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Play, Square, CheckCircle2, Clock, Plus, Bell, User, Flame } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface Task {
   id: string;
   text: string;
-  priority: 'BAIXA' | 'MEDIA' | 'ALTA';
+  priority: 'baixa' | 'media' | 'alta';
   completed: boolean;
 }
+
+interface Block {
+  id: number;
+  duration: string;
+  dimmed?: boolean;
+}
+
+const initialTasks: Task[] = [
+  { id: '1', text: 'effe',          priority: 'media', completed: false },
+  { id: '2', text: 'Editar',        priority: 'baixa', completed: false },
+  { id: '3', text: 'Teste',         priority: 'media', completed: false },
+  { id: '4', text: 'Teste',         priority: 'alta',  completed: false },
+  { id: '5', text: 'Teste',         priority: 'baixa', completed: false },
+  { id: '6', text: 'Guardar roupas', priority: 'media', completed: true },
+  { id: '7', text: 'Mineração',      priority: 'alta',  completed: true },
+  { id: '8', text: 'Teste',          priority: 'alta',  completed: true },
+];
+
+const initialBlocks: Block[] = [
+  { id: 1, duration: '02:32:29' },
+  { id: 2, duration: '00:21:45' },
+  { id: 3, duration: '03:06:14' },
+  { id: 4, duration: '00:02:54', dimmed: true },
+];
 
 export default function Trabalho() {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
-  const [tasks] = useState<Task[]>([
-    { id: '1', text: 'effe', priority: 'MEDIA', completed: false },
-    { id: '2', text: 'Editar', priority: 'BAIXA', completed: false },
-    { id: '3', text: 'Teste', priority: 'MEDIA', completed: false },
-    { id: '4', text: 'Teste', priority: 'ALTA', completed: false },
-    { id: '5', text: 'Teste', priority: 'BAIXA', completed: false },
-    { id: '6', text: 'Guardar roupas', priority: 'MEDIA', completed: true },
-    { id: '7', text: 'Mineração', priority: 'ALTA', completed: true },
-    { id: '8', text: 'Teste', priority: 'ALTA', completed: true },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [blocks] = useState<Block[]>(initialBlocks);
 
   useEffect(() => {
     let interval: any;
-    if (isActive) {
-      interval = setInterval(() => setTime(prev => prev + 1), 1000);
-    } else {
-      clearInterval(interval);
-    }
+    if (isActive) interval = setInterval(() => setTime((p) => p + 1), 1000);
     return () => clearInterval(interval);
   }, [isActive]);
 
@@ -41,82 +51,83 @@ export default function Trabalho() {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   };
 
+  const toggleTask = (id: string) => {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)));
+  };
+
   return (
-    <div className="bg-black min-h-screen">
-      <header className="px-12 py-8 flex justify-between items-center border-b border-zinc-900 sticky top-0 bg-black/80 backdrop-blur-xl z-20">
-         <div className="flex items-center gap-4">
-            <h2 className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-[10px]">PRODUTIVIDADE</h2>
-         </div>
-      </header>
+    <div className="bg-black min-h-screen text-white">
+      <div className="grid grid-cols-12 gap-10 px-10 py-10 max-w-[1800px]">
+        {/* LEFT — Timer + Blocks */}
+        <div className="col-span-12 lg:col-span-5 space-y-8">
+          <h1 className="text-[32px] font-bold tracking-tight">Blocos de Trabalho</h1>
 
-      <div className="p-12 space-y-12 max-w-[1700px] mx-auto">
-        <div className="grid grid-cols-12 gap-12">
-          {/* Main Content: Timer & Blocks */}
-          <div className="col-span-12 lg:col-span-8 space-y-12">
-             <h1 className="text-5xl font-black tracking-tight text-white">Blocos de Trabalho</h1>
-
-             <div className="bg-zinc-950 border border-zinc-900 rounded-[40px] p-20 text-center relative overflow-hidden space-y-12">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,106,0,0.05),transparent_70%)]" />
-                
-                <div className="relative">
-                   <div className="w-32 h-32 mx-auto relative mb-8">
-                     <img 
-                       src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=300&q=80" 
-                       alt="Kinetic Asset" 
-                       className="w-full h-full object-contain filter hue-rotate-[320deg] contrast-150 drop-shadow-[0_0_20px_rgba(255,106,0,0.5)]"
-                     />
-                   </div>
-                   <div className="text-[160px] font-black tracking-[-0.05em] leading-none text-white font-mono drop-shadow-2xl">
-                      {formatTime(time)}
-                   </div>
-                </div>
-
-                <div className="flex justify-center gap-8 relative z-10">
-                   <button 
-                     onClick={() => setIsActive(!isActive)}
-                     className="w-80 py-8 bg-kinetic-orange text-black font-black uppercase tracking-[0.3em] text-lg rounded-[24px] hover:brightness-110 active:scale-95 transition-all shadow-[0_15px_40px_rgba(255,106,0,0.3)]"
-                   >
-                     {isActive ? 'PAUSAR' : 'INICIAR'}
-                   </button>
-                   <button 
-                     onClick={() => { setIsActive(false); setTime(0); }}
-                     className="w-80 py-8 border-4 border-kinetic-orange text-kinetic-orange font-black uppercase tracking-[0.3em] text-lg rounded-[24px] hover:bg-kinetic-orange/5 transition-all"
-                   >
-                     FINALIZAR
-                   </button>
-                </div>
-             </div>
-
-             <div className="space-y-6">
-                <SessionBlock id="#1" duration="02:32:29" />
-                <SessionBlock id="#2" duration="00:21:45" />
-                <SessionBlock id="#3" duration="03:06:14" />
-                <SessionBlock id="#4" duration="00:02:54" dimmed />
-             </div>
+          {/* Timer card */}
+          <div className="bg-zinc-950 border border-zinc-900 rounded-[28px] p-10 flex flex-col items-center">
+            <div className="w-16 h-16 mb-6">
+              <RockSmall />
+            </div>
+            <div className="text-[56px] font-bold tracking-tight font-mono">{formatTime(time)}</div>
           </div>
 
-          {/* Sidebar: Tasks */}
-          <div className="col-span-12 lg:col-span-4 space-y-16">
-             <div className="space-y-8">
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-zinc-500">PENDENTES</h3>
-                <div className="bg-zinc-950/30 border border-zinc-900 rounded-[32px] overflow-hidden">
-                   {tasks.filter(t => !t.completed).map(task => (
-                     <TaskRow key={task.id} task={task} />
-                   ))}
-                   <button className="w-full py-8 border-t border-zinc-900 text-[10px] font-black uppercase tracking-[0.4em] text-zinc-600 hover:text-kinetic-orange transition-colors">
-                      + NOVA TAREFA
-                   </button>
-                </div>
-             </div>
+          {/* Iniciar / Finalizar */}
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => setIsActive(true)}
+              className="px-10 py-3 bg-kinetic-orange text-black font-bold text-sm tracking-wider rounded-xl hover:brightness-110 active:scale-95 transition-all"
+            >
+              INICIAR
+            </button>
+            <button
+              onClick={() => {
+                setIsActive(false);
+                setTime(0);
+              }}
+              className="px-10 py-3 border-2 border-kinetic-orange text-kinetic-orange font-bold text-sm tracking-wider rounded-xl hover:bg-kinetic-orange/10 transition-all"
+            >
+              FINALIZAR
+            </button>
+          </div>
 
-             <div className="space-y-8">
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-zinc-500">CONCLUÍDAS</h3>
-                <div className="bg-zinc-950/30 border border-zinc-900 rounded-[32px] overflow-hidden opacity-40">
-                   {tasks.filter(t => t.completed).map(task => (
-                     <TaskRow key={task.id} task={task} />
-                   ))}
-                </div>
-             </div>
+          {/* Blocks list */}
+          <div className="space-y-4 pt-4">
+            {blocks.map((b) => (
+              <div
+                key={b.id}
+                className={cn(
+                  'flex items-center justify-between px-8 py-5 rounded-2xl',
+                  b.dimmed
+                    ? 'bg-kinetic-orange/25 text-kinetic-orange/50'
+                    : 'bg-kinetic-orange text-black'
+                )}
+              >
+                <span className="text-xl font-bold tracking-tight">BLOCO #{b.id}</span>
+                <span className="text-xl font-bold font-mono">{b.duration}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* MIDDLE — Pendentes */}
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">PENDENTES</h3>
+          <div className="bg-zinc-950 border border-zinc-900 rounded-2xl overflow-hidden">
+            {tasks.filter((t) => !t.completed).map((t) => (
+              <TaskRow key={t.id} task={t} onToggle={() => toggleTask(t.id)} />
+            ))}
+          </div>
+          <button className="w-full py-4 border-2 border-dashed border-zinc-800 rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600 hover:text-kinetic-orange hover:border-zinc-600 transition-all">
+            + NOVA TAREFA
+          </button>
+        </div>
+
+        {/* RIGHT — Concluídas */}
+        <div className="col-span-12 lg:col-span-3 space-y-6">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">CONCLUÍDAS</h3>
+          <div className="bg-zinc-950 border border-zinc-900 rounded-2xl overflow-hidden">
+            {tasks.filter((t) => t.completed).map((t) => (
+              <TaskRow key={t.id} task={t} onToggle={() => toggleTask(t.id)} />
+            ))}
           </div>
         </div>
       </div>
@@ -124,42 +135,54 @@ export default function Trabalho() {
   );
 }
 
-function SessionBlock({ id, duration, dimmed }: { id: string, duration: string, dimmed?: boolean }) {
+function TaskRow({ task, onToggle }: { task: Task; onToggle: () => void }) {
+  const priorityColor =
+    task.priority === 'alta' ? 'text-red-500' :
+    task.priority === 'media' ? 'text-kinetic-orange' : 'text-zinc-500';
+
   return (
-    <div className={cn(
-      "w-full py-12 px-12 bg-kinetic-orange rounded-[40px] flex items-center justify-between text-black group transition-all cursor-pointer hover:translate-y-[-4px]",
-      dimmed && "bg-kinetic-orange/20 text-kinetic-orange/60 border-2 border-kinetic-orange/20"
-    )}>
-       <h3 className="text-5xl font-black italic uppercase tracking-tighter">BLOCO {id}</h3>
-       <div className="text-5xl font-mono font-black">{duration}</div>
+    <div
+      onClick={onToggle}
+      className="flex items-center gap-3 px-5 py-3 border-b border-zinc-900 last:border-b-0 cursor-pointer hover:bg-zinc-900/30"
+    >
+      <div
+        className={cn(
+          'w-4 h-4 rounded border flex items-center justify-center shrink-0',
+          task.completed ? 'bg-kinetic-orange border-kinetic-orange' : 'border-zinc-700'
+        )}
+      >
+        {task.completed && (
+          <svg viewBox="0 0 12 12" className="w-3 h-3 text-black" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M2 6 L5 9 L10 3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </div>
+      <span className={cn('flex-1 text-sm font-medium', task.completed && 'line-through text-zinc-600')}>
+        {task.text}
+      </span>
+      <span className={cn('text-[10px] font-bold uppercase', priorityColor, task.completed && 'opacity-50')}>
+        {task.priority}
+      </span>
     </div>
   );
 }
 
-interface TaskRowProps {
-  task: Task;
-  key?: any;
-}
-
-function TaskRow({ task }: TaskRowProps) {
+function RockSmall() {
   return (
-    <div className="px-8 py-6 border-b border-zinc-900 flex items-center gap-6 group">
-       <div className={cn(
-         "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
-         task.completed ? "bg-kinetic-orange border-kinetic-orange" : "border-zinc-800"
-       )}>
-          {task.completed && <CheckCircle2 className="w-4 h-4 text-black" />}
-       </div>
-       <span className={cn("flex-1 font-black text-sm uppercase italic tracking-wide", task.completed && "line-through text-zinc-600")}>
-          {task.text}
-       </span>
-       <div className={cn(
-          "px-4 py-1 rounded-md text-[9px] font-black uppercase tracking-widest",
-          task.priority === 'ALTA' ? "bg-red-500/20 text-red-500" : 
-          task.priority === 'MEDIA' ? "bg-zinc-800 text-zinc-500" : "bg-zinc-900 text-zinc-700"
-       )}>
-          {task.priority}
-       </div>
-    </div>
+    <svg viewBox="0 0 200 200" className="w-full h-full">
+      <defs>
+        <radialGradient id="ember-s" cx="50%" cy="55%" r="50%">
+          <stop offset="0%" stopColor="#ffcc66" />
+          <stop offset="40%" stopColor="#ff6a00" />
+          <stop offset="100%" stopColor="#8a1a00" />
+        </radialGradient>
+        <linearGradient id="rock-s" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#2a2a2a" />
+          <stop offset="100%" stopColor="#050505" />
+        </linearGradient>
+      </defs>
+      <path d="M50,70 L35,110 L45,150 L80,170 L130,165 L165,140 L170,95 L150,55 L110,40 L75,45 Z" fill="url(#rock-s)" />
+      <path d="M85,90 L75,115 L90,140 L115,145 L135,125 L130,100 L115,85 Z" fill="url(#ember-s)" />
+    </svg>
   );
 }
